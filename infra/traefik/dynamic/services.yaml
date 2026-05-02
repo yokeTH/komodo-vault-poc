@@ -1,0 +1,24 @@
+http:
+  routers:
+    vault:
+      rule: "Host(`vault.yoke-th.me`)"
+      entryPoints: [websecure]
+      service: vault
+      tls: {}
+
+    komodo:
+      rule: "Host(`komodo.yoke-th.me`)"
+      entryPoints: [websecure]
+      service: komodo
+      tls: {}
+
+  services:
+    vault:
+      loadBalancer:
+        servers:
+          - url: "http://vault:8200"
+
+    komodo:
+      loadBalancer:
+        servers:
+          - url: "http://komodo-core:9120"

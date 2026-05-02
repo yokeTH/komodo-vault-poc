@@ -1,10 +1,11 @@
 http:
   routers:
     api:
-      rule: "Host(`api.localhost`) || PathPrefix(`/api`)"
-      entryPoints: [web]
+      rule: "Host(`api-demo.yoke-th.me`)"
+      entryPoints: [websecure]
       service: api
       middlewares: [api-strip]
+      tls: {}
 
   middlewares:
     api-strip:
