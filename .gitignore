@@ -3,3 +3,4 @@
 .DS_Store
 rendered/komodo.env
 !rendered/.gitkeep
+./infra/vault-data

@@ -11,7 +11,7 @@ services:
     command: server
     volumes:
       - ./vault/config.hcl:/vault/config/config.hcl:ro
-      - vault-data:/vault/data
+      - ./vault-data:/vault/data
     healthcheck:
       test: ["CMD", "vault", "status"]
       interval: 3s
