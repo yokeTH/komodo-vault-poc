@@ -85,6 +85,26 @@ new values.
 | Container lifecycle, redeploy, alerts | Komodo |
 | Secret rotation | Vault (auto via agent re-exec) |
 
+## Demo account (share with a friend)
+
+After the `api` Stack exists in Komodo, run:
+
+```sh
+./infra/setup-demo.sh
+```
+
+This creates a single restricted `demo`/`demo` identity in both systems:
+
+| System | What `demo` can do | What `demo` cannot do |
+|---|---|---|
+| Komodo (`:9120`) | Redeploy / start / stop the `api` Stack | Edit compose, create resources, see other stacks |
+| Vault  (`:8200`) | Read & write `secret/apps/*` (rotate app secrets) | Touch any other path, change policies, see root |
+
+Admin login stays separate: `admin` / `admin-change-me` (change in `infra/docker-compose.yaml`).
+
+Override defaults via env vars before running the script: `KOMODO_ADMIN_PASS`,
+`DEMO_USER`, `DEMO_PASS`, `STACK_NAME`.
+
 ## Production notes
 
 - Replace dev-mode Vault with a sealed cluster.
