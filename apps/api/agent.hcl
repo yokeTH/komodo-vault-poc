@@ -4,9 +4,11 @@ vault {
 }
 
 auto_auth {
-  method "token_file" {
+  method "approle" {
     config = {
-      token_file_path = "/etc/vault/token"
+      role_id_file_path                   = "/etc/vault/roleid"
+      secret_id_file_path                 = "/etc/vault/secretid"
+      remove_secret_id_file_after_reading = false
     }
   }
 }
