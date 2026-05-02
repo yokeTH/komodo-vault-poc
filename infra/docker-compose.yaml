@@ -1,0 +1,85 @@
+services:
+  vault:
+    image: hashicorp/vault:1.18
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_ADDR: http://0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    command: server -dev
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+    restart: unless-stopped
+
+  komodo-mongo:
+    image: mongo:7
+    container_name: komodo-mongo
+    volumes:
+      - komodo-mongo:/data/db
+    restart: unless-stopped
+
+  komodo-core:
+    image: ghcr.io/moghtech/komodo-core:latest
+    container_name: komodo-core
+    depends_on:
+      - komodo-mongo
+    ports:
+      - "9120:9120"
+    environment:
+      KOMODO_HOST: http://localhost:9120
+      KOMODO_TITLE: Komodo (Vault POC)
+      KOMODO_DATABASE_URI: mongodb://komodo-mongo:27017
+      KOMODO_PASSKEY: dev-passkey
+      KOMODO_FIRST_SERVER: https://komodo-periphery:8120
+      KOMODO_LOGGING_LEVEL: info
+      KOMODO_LOCAL_AUTH: "true"
+      KOMODO_DISABLE_USER_REGISTRATION: "false"
+      KOMODO_ENABLE_NEW_USERS: "true"
+      KOMODO_INIT_ADMIN_USERNAME: demo
+      KOMODO_INIT_ADMIN_PASSWORD: demo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  traefik:
+    image: traefik:v3.5
+    container_name: traefik
+    ports:
+      - "18080:80"
+      - "19900:8080"
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    volumes:
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+    restart: unless-stopped
+
+  komodo-periphery:
+    image: ghcr.io/moghtech/komodo-periphery:latest
+    container_name: komodo-periphery
+    environment:
+      PERIPHERY_PASSKEYS: dev-passkey
+      PERIPHERY_REPO_DIR: /repos
+      PERIPHERY_STACK_DIR: /stacks
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - periphery-repos:/repos
+      - periphery-stacks:/stacks
+    restart: unless-stopped
+
+volumes:
+  komodo-mongo:
+  periphery-repos:
+  periphery-stacks:

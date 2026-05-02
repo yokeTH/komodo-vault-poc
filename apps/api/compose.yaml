@@ -1,0 +1,12 @@
+services:
+  api:
+    image: komodo-vault-poc/api:latest
+    container_name: api
+    networks:
+      - infra
+    restart: unless-stopped
+
+networks:
+  infra:
+    name: infra_default
+    external: true
